@@ -2,7 +2,8 @@ const { HttpError } = require('../../helpers');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const gravatar = require('gravatar');
-
+const { v4: uuid } = require('uuid');
+const sendEmail = require('../../helpers/nodlerSendEmail');
 const { User } = require('../../models');
 
 const { SECRET_KEY } = process.env;
@@ -22,13 +23,13 @@ const register = async (req, res) => {
 	//create new user  and response status and response body
 
 	const avatarURL = gravatar.url(email);
-	console.log('avatarURL', avatarURL);
 
 	const newUser = await User.create({
 		name,
 		email,
 		password: hashPassword,
 		avatarURL,
+		verificationEmailToken: uuid(),
 	});
 	res.status(201).json({
 		status: 'success',
@@ -46,6 +47,10 @@ const login = async (req, res) => {
 	// сравнение пароля с хешом в базе , в случае успеха генерация и возврат токена
 	if (!user || !bcrypt.compareSync(password, user.password)) {
 		throw HttpError(401, `Email or password is wrong`);
+	}
+	if (!user.verifyEmail) {
+		sendEmail(user);
+		throw HttpError(401, `Email isn't verify`);
 	}
 	// create token
 	const payload = {

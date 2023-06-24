@@ -20,6 +20,9 @@ app.use('/api/auth', authRouter);
 // все запросы по этому маршруту обрабатываются usersRouter
 app.use('/api/users/', usersRouter);
 
+//
+app.use('/api/users/', usersRouter);
+
 app.use((err, req, res, next) => {
 	const { status = 500, message = 'Server error' } = err;
 	res.status(status).json({ message: err.message });

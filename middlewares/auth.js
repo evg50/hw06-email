@@ -19,7 +19,7 @@ const bcrypt = require('bcryptjs');
 const { Unauthorized } = require('http-errors');
 const { User } = require('../models/users');
 const { SECRET_KEY } = process.env;
-
+// const { sendEmail } = require('../helpers/nodlerSendEmail');
 const auth = async (req, res, next) => {
 	const { authorization = '' } = req.headers;
 	const [bearer, token] = authorization.split(' ');
@@ -36,6 +36,7 @@ const auth = async (req, res, next) => {
 		if (!user || !user.token) {
 			throw new Unauthorized('Not authorized');
 		}
+
 		req.user = user;
 		next();
 	} catch (error) {
